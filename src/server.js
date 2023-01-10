@@ -20,9 +20,15 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`);
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-function handleConnection(socket) {
-    console.log('socket', socket);
-}
-wss.on('connection', handleConnection);
+wss.on('connection', (socket) => {
+    console.log('브라우저와 연결됐어요~✅');
+    socket.on('close', () => {
+        console.log('브라우저와 연결이 해제됐어요!💥');
+    });
+    socket.on('message', (message) => {
+        console.log('브라우저에서 온 메시지:', message.toString());
+    });
+    socket.send('서버에서 보내는 메시지에요!');
+});
 
 server.listen(3000, handleListen);
