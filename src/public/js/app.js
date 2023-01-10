@@ -8,20 +8,6 @@ room.hidden = true;
 
 let roomName;
 
-// 누가 들어왔을 때 화면에 표시
-function enterUser(nickname) {
-    const ul = room.querySelector('ul');
-    const li = document.createElement('li');
-    li.innerText = `${nickname}님이 방에 들어왔어요!`;
-    ul.appendChild(li);
-}
-// 누가 나갔을 때 화면에 표시
-function leaveUser(nickname) {
-    const ul = room.querySelector('ul');
-    const li = document.createElement('li');
-    li.innerText = `${nickname}님이 방에서 나갔어요ㅠ`;
-    ul.appendChild(li);
-}
 // 메시지 화면에 표시
 function addMessage(message) {
     const ul = room.querySelector('ul');
@@ -72,8 +58,16 @@ roomForm.addEventListener('submit', handleRoomSubmit);
 const nameForm = welcome.querySelector('#name');
 nameForm.addEventListener('submit', handleNicknameSubmit);
 
-socket.on('welcome', enterUser);
-socket.on('bye', leaveUser);
+socket.on('welcome', (user, userCount) => {
+    const h3 = room.querySelector('h3');
+    h3.innerText = `Room ${roomName} (${userCount})`;
+    addMessage(`${user} 님이 들어왔어요!`);
+});
+socket.on('bye', (user, userCount) => {
+    const h3 = room.querySelector('h3');
+    h3.innerText = `Room ${roomName} (${userCount})`;
+    addMessage(`${user} 님이 나갔어요 ㅠ`);
+});
 socket.on('message', addMessage);
 socket.on('roomChange', (rooms) => {
     const roomList = welcome.querySelector('ul');

@@ -32,6 +32,12 @@ function publicRooms() {
     return publicRooms;
 }
 
+// 채팅방에 몇명있는지
+function countRoom(roomName) {
+    const roomSize = wsServer.sockets.adapter.rooms.get(roomName)?.size;
+    return roomSize;
+}
+
 wsServer.on('connection', (socket) => {
     socket['nickname'] = '익명의 누군가';
     socket.onAny((event) => {
@@ -43,13 +49,15 @@ wsServer.on('connection', (socket) => {
         //! (done()은 실행버튼 역할임)
         done();
         // 나를 제외한 모두에게 emit
-        socket.to(roomName).emit('welcome', `${socket.nickname}`);
+        socket
+            .to(roomName)
+            .emit('welcome', socket.nickname, countRoom(roomName));
         wsServer.sockets.emit('roomChange', publicRooms());
     });
     socket.on('disconnecting', () => {
         // socket.rooms => set(2) { zxzse123...} 이런 형식
         socket.rooms.forEach((room) =>
-            socket.to(room).emit('bye', `${socket.nickname}`)
+            socket.to(room).emit('bye', socket.nickname, countRoom(room) - 1)
         );
     });
     socket.on('disconnect', () => {
