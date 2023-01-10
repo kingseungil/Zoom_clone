@@ -25,12 +25,21 @@ const sockets = [];
 
 wss.on('connection', (socket) => {
     sockets.push(socket);
+    socket['nickname'] = '홍길동';
     console.log('브라우저와 연결됐어요~✅');
     socket.on('close', () => {
         console.log('브라우저와 연결이 해제됐어요!💥');
     });
     socket.on('message', (message) => {
-        sockets.forEach((aSocket) => aSocket.send(message.toString()));
+        const parsed = JSON.parse(message);
+        switch (parsed.type) {
+            case 'new_message':
+                sockets.forEach((aSocket) =>
+                    aSocket.send(`${socket.nickname}: ${parsed.payload}`)
+                );
+            case 'nickname':
+                socket['nickname'] = parsed.payload;
+        }
     });
 });
 
