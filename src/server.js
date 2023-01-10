@@ -22,13 +22,16 @@ const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
 wsServer.on('connection', (socket) => {
+    socket.onAny((event) => {
+        console.log(`Socket Event: ${event}`);
+    });
     socket.on('enter_room', (roomName, done) => {
-        console.log(roomName);
-        setTimeout(() => {
-            //! backend에서 done함수를 실행하면 front에서 backendDone함수 실행
-            //! (done()은 실행버튼 역할임)
-            done('안녕 나는 백엔드야!');
-        }, 3000);
+        socket.join(roomName);
+        //! backend에서 done함수를 실행하면 front에서 backendDone함수 실행
+        //! (done()은 실행버튼 역할임)
+        done();
+        // 나를 제외한 모두에게 emit
+        socket.to(roomName).emit('welcome', socket.id);
     });
 });
 
