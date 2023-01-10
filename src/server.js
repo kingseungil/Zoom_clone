@@ -1,3 +1,4 @@
+import { log } from 'console';
 import express from 'express';
 import http from 'http';
 import SocketIO from 'socket.io';
@@ -21,7 +22,14 @@ const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
 wsServer.on('connection', (socket) => {
-    console.log('socket', socket);
+    socket.on('enter_room', (roomName, done) => {
+        console.log(roomName);
+        setTimeout(() => {
+            //! backend에서 done함수를 실행하면 front에서 backendDone함수 실행
+            //! (done()은 실행버튼 역할임)
+            done('안녕 나는 백엔드야!');
+        }, 3000);
+    });
 });
 
 // // Fake DB -> 다른 브라우저와 연결을 위해 만들어줌
