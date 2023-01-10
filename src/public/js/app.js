@@ -1,3 +1,5 @@
+const messageList = document.querySelector('ul');
+const messageForm = document.querySelector('form');
 const socket = new WebSocket(`ws://${window.location.host}`);
 
 socket.addEventListener('open', () => {
@@ -12,7 +14,11 @@ socket.addEventListener('close', () => {
     console.log('서버와 연결이 해제됐어요~💥');
 });
 
-setTimeout(() => {
-    // socket.send('안녕하세요 브라우저에요!');
-    socket.send('안녕하세요 브라우저에요!');
-}, 3000);
+function handleSubmit(event) {
+    event.preventDefault(); // form 안에 submit 역할을 하는 버튼을 눌렀어도 새로 실행하지 않게 하고싶을 경우 (submit은 작동됨)
+    const input = messageForm.querySelector('input');
+    socket.send(input.value);
+    input.value = '';
+}
+
+messageForm.addEventListener('submit', handleSubmit);
