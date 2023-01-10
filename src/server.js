@@ -25,13 +25,21 @@ wsServer.on('connection', (socket) => {
     socket.onAny((event) => {
         console.log(`Socket Event: ${event}`);
     });
-    socket.on('enter_room', (roomName, done) => {
+    socket.on('enterRoom', (roomName, done) => {
         socket.join(roomName);
         //! backend에서 done함수를 실행하면 front에서 backendDone함수 실행
         //! (done()은 실행버튼 역할임)
         done();
         // 나를 제외한 모두에게 emit
         socket.to(roomName).emit('welcome', socket.id);
+    });
+    socket.on('disconnecting', () => {
+        // socket.rooms => set(2) { zxzse123...} 이런 형식
+        socket.rooms.forEach((room) => socket.to(room).emit('bye', socket.id));
+    });
+    socket.on('newMessage', (msg, room, done) => {
+        socket.to(room).emit('message', msg);
+        done();
     });
 });
 
