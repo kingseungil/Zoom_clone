@@ -1,6 +1,6 @@
 import express from 'express';
 import http from 'http';
-import WebSocket from 'ws';
+import SocketIO from 'socket.io';
 
 const app = express();
 
@@ -17,30 +17,34 @@ app.get('/*', (req, res) => {
 
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
 
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const httpServer = http.createServer(app);
+const wsServer = SocketIO(httpServer);
 
-// Fake DB -> 다른 브라우저와 연결을 위해 만들어줌
-const sockets = [];
-
-wss.on('connection', (socket) => {
-    sockets.push(socket);
-    socket['nickname'] = '홍길동';
-    console.log('브라우저와 연결됐어요~✅');
-    socket.on('close', () => {
-        console.log('브라우저와 연결이 해제됐어요!💥');
-    });
-    socket.on('message', (message) => {
-        const parsed = JSON.parse(message);
-        switch (parsed.type) {
-            case 'new_message':
-                sockets.forEach((aSocket) =>
-                    aSocket.send(`${socket.nickname}: ${parsed.payload}`)
-                );
-            case 'nickname':
-                socket['nickname'] = parsed.payload;
-        }
-    });
+wsServer.on('connection', (socket) => {
+    console.log('socket', socket);
 });
 
-server.listen(3000, handleListen);
+// // Fake DB -> 다른 브라우저와 연결을 위해 만들어줌
+// const sockets = [];
+
+// wss.on('connection', (socket) => {
+//     sockets.push(socket);
+//     socket['nickname'] = '홍길동';
+//     console.log('브라우저와 연결됐어요~✅');
+//     socket.on('close', () => {
+//         console.log('브라우저와 연결이 해제됐어요!💥');
+//     });
+//     socket.on('message', (message) => {
+//         const parsed = JSON.parse(message);
+//         switch (parsed.type) {
+//             case 'new_message':
+//                 sockets.forEach((aSocket) =>
+//                     aSocket.send(`${socket.nickname}: ${parsed.payload}`)
+//                 );
+//             case 'nickname':
+//                 socket['nickname'] = parsed.payload;
+//         }
+//     });
+// });
+
+httpServer.listen(3000, handleListen);
