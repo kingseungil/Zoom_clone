@@ -11,14 +11,18 @@ html(lang="en")
             h1 Zoom Clone!
         main 
             div#welcome
-                form
-                    input(placeholder='room name', type="text", required)
+                form#name
+                    input(placeholder='nickname', type='text', required) 
+                    button Save
+                form#roomName
+                    input(placeholder='roomName', type="text", required)
                     button Enter Room
-
+                h4 Open Rooms:
+                ul
             div#room
                 h3
                 ul
-                form
+                form#msg
                     input(placeholder='message', type='text', required) 
                     button Send
         script(src="/socket.io/socket.io.js")
